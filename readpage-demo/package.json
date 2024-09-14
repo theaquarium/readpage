@@ -1,0 +1,15 @@
+{
+    "name": "readpage",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "Leah Vashevko",
+    "license": "MIT",
+    "type": "module",
+    "private": true,
+    "dependencies": {
+        "openai": "^4.58.1"
+    },
+    "overrides": {
+        "whatwg-url": "13.0.0"
+    }
+}
