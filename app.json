@@ -31,12 +31,15 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera.",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone.",
           "recordAudioAndroid": true
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      {
+        "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+      }
     ],
     "experiments": {
       "typedRoutes": true
