@@ -3,7 +3,7 @@ import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import * as FileSystem from 'expo-file-system';
 
-const MAXIMUM_FILES = 5;
+const MAXIMUM_FILES = 10;
 
 export interface AudioManagerContextType {
     files: string[];
@@ -25,11 +25,16 @@ export function AudioManagerProvider({
     // EMPTY CACHE DIRECTORY
     useEffect(() => {
         const clearCache = async () => {
+            console.log('clearing cache...');
             const cacheDir = FileSystem.cacheDirectory;
             if (!cacheDir) return;
             const files = await FileSystem.readDirectoryAsync(cacheDir);
             files.forEach((filename) => {
-                FileSystem.deleteAsync(cacheDir + filename);
+                if (filename.startsWith('speech-')) {
+                    console.log('deleting', filename);
+
+                    FileSystem.deleteAsync(cacheDir + filename);
+                }
             });
         };
 

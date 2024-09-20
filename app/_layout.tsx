@@ -1,4 +1,8 @@
 import { AudioManagerProvider } from '@/contexts/AudioManagerContext';
+import {
+    LocalizationProvider,
+    LocalizationContext,
+} from '@/contexts/LocalizationContext';
 import { OpenAIProvider } from '@/contexts/OpenAIContext';
 import { Stack } from 'expo-router';
 
@@ -6,28 +10,36 @@ export default function RootLayout() {
     return (
         <OpenAIProvider>
             <AudioManagerProvider>
-                <Stack>
-                    <Stack.Screen
-                        name="index"
-                        options={{
-                            headerShown: false,
+                <LocalizationProvider>
+                    <LocalizationContext.Consumer>
+                        {({ i18n }) => {
+                            return (
+                                <Stack>
+                                    <Stack.Screen
+                                        name="index"
+                                        options={{
+                                            headerShown: false,
+                                        }}
+                                    />
+                                    <Stack.Screen
+                                        name="settings"
+                                        options={{
+                                            title: i18n.t('settingsTitle'),
+                                            headerStyle: {
+                                                backgroundColor: '#000',
+                                            },
+                                            headerTintColor: '#fff',
+                                            headerTitleStyle: {
+                                                fontWeight: 'bold',
+                                            },
+                                            headerBackTitle: i18n.t('back'),
+                                        }}
+                                    />
+                                </Stack>
+                            );
                         }}
-                    />
-                    <Stack.Screen
-                        name="settings"
-                        options={{
-                            title: 'Settings',
-                            headerStyle: {
-                                backgroundColor: '#000',
-                            },
-                            headerTintColor: '#fff',
-                            headerTitleStyle: {
-                                fontWeight: 'bold',
-                            },
-                            headerBackTitle: 'Back',
-                        }}
-                    />
-                </Stack>
+                    </LocalizationContext.Consumer>
+                </LocalizationProvider>
             </AudioManagerProvider>
         </OpenAIProvider>
     );

@@ -1,0 +1,7 @@
+{
+    "CFBundleDisplayName": "Прочитай",
+    "NSFaceIDUsageDescription": "Разрешите «Прочитай» доступ к Face ID.",
+    "NSCameraUsageDescription": "Разрешите «Прочитай» доступ к вашей камере.",
+    "NSMicrophoneUsageDescription": "Разрешите «Прочитай» доступ к вашему микрофону.",
+    "app_name": "Прочитай"
+}

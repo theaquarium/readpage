@@ -3,6 +3,15 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import OpenAI from 'openai';
 import { splitMaxLength } from '@/utils/utils';
 import * as FileSystem from 'expo-file-system';
+import * as SecureStore from 'expo-secure-store';
+
+export type OpenAIVoice =
+    | 'alloy'
+    | 'echo'
+    | 'fable'
+    | 'onyx'
+    | 'nova'
+    | 'shimmer';
 
 // const STOPWORD = '[Stop]';
 
@@ -11,6 +20,8 @@ export interface OpenAIContextType {
     setAPIKey: (key: string) => void;
     transcribePage: (photo: string) => Promise<string>;
     generateTTS: (text: string) => Promise<string[]>;
+    voice: OpenAIVoice;
+    changeVoice: (newVoice: OpenAIVoice) => void;
 }
 
 const OpenAIContext = createContext<OpenAIContextType>({
@@ -18,10 +29,13 @@ const OpenAIContext = createContext<OpenAIContextType>({
     setAPIKey: () => {},
     transcribePage: async () => '',
     generateTTS: async () => [],
+    voice: 'onyx',
+    changeVoice: () => {},
 });
 
 export function OpenAIProvider({ children }: { children: React.ReactNode }) {
     const [openai, setOpenAI] = useState<OpenAI | null>(null);
+    const [voice, setVoice] = useState<OpenAIVoice>('onyx');
 
     const setAPIKey = (key: string) => {
         setOpenAI(
@@ -29,6 +43,18 @@ export function OpenAIProvider({ children }: { children: React.ReactNode }) {
                 apiKey: key,
             }),
         );
+
+        SecureStore.setItemAsync('openai-key', key, {
+            requireAuthentication: false,
+        });
+    };
+
+    const changeVoice = (newVoice: OpenAIVoice) => {
+        setVoice(newVoice);
+
+        SecureStore.setItemAsync('openai-voice', newVoice, {
+            requireAuthentication: false,
+        });
     };
 
     const transcribePage = async (photo: string): Promise<string> => {
@@ -117,7 +143,7 @@ export function OpenAIProvider({ children }: { children: React.ReactNode }) {
             parts.map(async (part, index) => {
                 const response = await openai.audio.speech.create({
                     model: 'tts-1',
-                    voice: 'onyx',
+                    voice,
                     input: part,
                 });
 
@@ -134,7 +160,21 @@ export function OpenAIProvider({ children }: { children: React.ReactNode }) {
     };
 
     useEffect(() => {
-        setAPIKey('');
+        SecureStore.getItemAsync('openai-key')
+            .then((key) => {
+                setAPIKey(key ?? '');
+            })
+            .catch((e) => {
+                console.error('Error retrieving API key', e);
+            });
+
+        SecureStore.getItemAsync('openai-voice')
+            .then((key) => {
+                setVoice((key as OpenAIVoice) ?? 'onyx');
+            })
+            .catch((e) => {
+                console.error('Error retrieving voice name', e);
+            });
     }, []);
 
     const openAIProp: OpenAIContextType = useMemo(
@@ -143,6 +183,8 @@ export function OpenAIProvider({ children }: { children: React.ReactNode }) {
             setAPIKey,
             transcribePage,
             generateTTS,
+            voice,
+            changeVoice,
         }),
         [openai],
     );

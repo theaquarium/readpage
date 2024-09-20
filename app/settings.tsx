@@ -1,41 +1,67 @@
-import {
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
-    TouchableOpacity
-} from 'react-native';
+import { OpenAIVoice, useOpenAI } from '@/contexts/OpenAIContext';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { PickerIOS } from '@react-native-picker/picker';
+import { useLocalization } from '@/contexts/LocalizationContext';
 
-const settingsOptions = [
-    {
-      title: 'OpenAI API key',
-      onPress: () => {},
-    },
-];
+export default function Settings() {
+    const router = useRouter();
+    const {
+        setAPIKey: storeAPIKey,
+        value: openai,
+        voice: storedVoice,
+        changeVoice,
+    } = useOpenAI();
+    const [apiKey, setAPIKey] = useState(openai?.apiKey);
+    const [voice, setVoice] = useState(storedVoice);
+    const { i18n } = useLocalization();
 
-export default function Index() {
     return (
         <View style={styles.container}>
-            {settingsOptions.map(({title, subTitle, onPress}, index) => (
-                <TouchableOpacity key={title} onPress={onPress}>
-                    <View style={styles.option}>
-                        <Text style={styles.optTitle}>{title}</Text>
-                        <TextInput style={styles.optTextInput}></TextInput>
-                    </View>
-                </TouchableOpacity>
-            ))}
+            <View style={styles.formField}>
+                <Text style={styles.formLabel}>{i18n.t('apiKeyTitle')}</Text>
+                <TextInput
+                    style={styles.formInput}
+                    placeholder="sk-svcacct-..."
+                    onChangeText={(newKey) => setAPIKey(newKey)}
+                    defaultValue={apiKey}
+                ></TextInput>
+            </View>
+
+            <View style={styles.formField}>
+                <Text style={styles.formLabel}>{i18n.t('voiceTitle')}</Text>
+                <PickerIOS
+                    style={styles.formInput}
+                    selectedValue={voice}
+                    onValueChange={(itemValue) =>
+                        setVoice(itemValue as OpenAIVoice)
+                    }
+                    itemStyle={{
+                        color: '#fff',
+                    }}
+                >
+                    <PickerIOS.Item label="Alloy" value="alloy" />
+                    <PickerIOS.Item label="Echo" value="echo" />
+                    <PickerIOS.Item label="Fable" value="fable" />
+                    <PickerIOS.Item label="Onyx" value="onyx" />
+                    <PickerIOS.Item label="Nova" value="nova" />
+                    <PickerIOS.Item label="Shimmer" value="shimmer" />
+                </PickerIOS>
+            </View>
+
             <Pressable
                 onPress={async () => {
-                    // setLoading(true);
-                    // const photo = await cameraRef.current?.takePictureAsync({
-                    //     base64: true,
-                    // });
-                    // setPhoto(photo?.base64);
+                    storeAPIKey(apiKey ?? '');
+                    changeVoice(voice);
+                    router.back();
                 }}
-                style={styles.saveButton}
+                style={({ pressed }) => ({
+                    ...styles.saveButton,
+                    opacity: pressed ? 0.8 : 1,
+                })}
             >
-                Save Settings
+                <Text style={styles.saveButtonText}>{i18n.t('save')}</Text>
             </Pressable>
         </View>
     );
@@ -44,39 +70,40 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         verticalAlign: 'top',
-        // padding: 20,
+        padding: 20,
         gap: 20,
         backgroundColor: '#000',
-        borderWidth: 1,
-        borderColor: '#f4c',
     },
-    option: {
+    formField: {
+        gap: 10,
+    },
+    formLabel: {
+        fontSize: 20,
+        color: '#fff',
+        fontWeight: 'bold',
+        paddingLeft: 21,
+    },
+    formInput: {
+        paddingVertical: 12,
         paddingHorizontal: 20,
-        paddingVertical: 20,
+        borderRadius: 15,
         verticalAlign: 'top',
         borderWidth: 1,
-        borderColor: '#f4c',
-    },
-    optTitle: {
-        paddingVertical: 10,
+        borderColor: '#333',
         color: '#fff',
-    },
-    optTextInput: {
-        paddingHorizontal: 5,
-        paddingVertical: 5,
-        backgroundColor: '#888',
-        color: '#fff',
-        borderWidth: 1,
-        borderColor: '#fff',
+        fontSize: 20,
     },
     saveButton: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#ccc',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         borderRadius: 15,
-        color: '#000',
+        backgroundColor: '#ffffff',
+    },
+    saveButtonText: {
+        fontSize: 20,
     },
 });
